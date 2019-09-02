@@ -2,3 +2,6 @@
 /annotation/cocohandai550/val/*.jpg
 /dl/dataset/*/*.jpg
 *.jpg
+*.JPG
+*.png
+/tmp/
