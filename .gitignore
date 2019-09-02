@@ -1,2 +1,3 @@
 /annotation/cocohandai550/train/*.jpg
 /annotation/cocohandai550/val/*.jpg
+./dl/dataset/*
