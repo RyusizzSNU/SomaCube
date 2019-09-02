@@ -192,7 +192,7 @@ def main():
               pos = [float(pos[0]), float(pos[1])]
               n_pt += 1
               if n_pt >= 2:
-                pygame.draw.line(screen, colors[cat_id-1], prev_pos, pos, width=1)
+                pygame.draw.line(screen, colors[cat_id-1], prev_pos, pos, 1)
               pygame.display.flip()
               prev_pos = pos
               seg[-1].extend(pos)
