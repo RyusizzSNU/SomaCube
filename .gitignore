@@ -5,3 +5,6 @@
 *.JPG
 *.png
 /tmp/
+*.zip
+*.h5
+/Mask_RCNN/logs/handai20190715T1532!
