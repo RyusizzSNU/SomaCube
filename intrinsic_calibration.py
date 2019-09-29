@@ -1,5 +1,5 @@
 import piggyphoto
-#import pygame
+import pygame
 import os
 import time
 import datetime
@@ -9,21 +9,21 @@ import cv2
 import glob
 import pickle
 
-'''def show(file):
+def show(file):
     picture = pygame.image.load(file)
     main_surface.blit(picture, (0, 0))
-    pygame.display.flip()'''
+    pygame.display.flip()
 
 C = piggyphoto.camera()
 C.leave_locked()
 C.capture_preview('preview.jpg')
 
-'''picture = pygame.image.load('preview.jpg')
+picture = pygame.image.load('preview.jpg')
 pygame.display.set_mode(picture.get_size())
-main_surface = pygame.display.get_surface()'''
+main_surface = pygame.display.get_surface()
 
 
-period = 0
+period = 0.5
 starttime = datetime.datetime.now()
 nexttime = starttime + datetime.timedelta(seconds = period)
 
@@ -38,6 +38,7 @@ for i in range(50):
 
     filename = 'preview' + str(i) + '.jpg'
     C.capture_preview(filename)
+    show(filename)
     nexttime = nexttime + datetime.timedelta(seconds = period)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -48,7 +49,7 @@ n = 6
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((m*n,3), np.float32)
 objp[:,:2] = np.mgrid[0:m,0:n].T.reshape(-1,2)
-objp = objp * 0.025
+objp = objp * 2.1
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
@@ -72,7 +73,7 @@ for fname in images:
         
         # Draw and display the corners
         cv2.drawChessboardCorners(img, (m,n), corners,ret)
-
+print("success :", len(objpoints))
 
 cv2.destroyAllWindows()
 
