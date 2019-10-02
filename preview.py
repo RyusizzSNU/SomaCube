@@ -1,8 +1,11 @@
-import piggyphoto, pygame
-import os
-import time
-import datetime
+import pygame
 import argparse
+from cam_tool import cam_tool
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--cam_type', type=str, help="Camera type. one of realsense and sony")
+args = parser.parse_args()
+
 
 def quit_pressed():
     for event in pygame.event.get():
@@ -10,21 +13,10 @@ def quit_pressed():
             return True
     return False
 
-def show(file):
-    picture = pygame.image.load(file)
-    main_surface.blit(picture, (0, 0))
-    pygame.display.flip()
-
-C = piggyphoto.camera()
-C.leave_locked()
-C.capture_preview('preview.jpg')
-
-picture = pygame.image.load("preview.jpg")
-pygame.display.set_mode(picture.get_size())
-main_surface = pygame.display.get_surface()
+cam = cam_tool(args.cam_type)
 
 while not quit_pressed():
     filename = 'preview.jpg'
-    C.capture_preview(filename)
-    show(filename)
+    cam.capture(filename)
+    cam.show(filename)
 

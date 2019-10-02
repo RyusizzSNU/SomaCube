@@ -1,0 +1,5 @@
+*.jpg
+*.png
+*.pkl
+results/
+ext_results/
