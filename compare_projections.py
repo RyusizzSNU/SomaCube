@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 import argparse
 import urx
-from pyquaternion import Quaternion
 from cam_tool import cam_tool
 
 parser = argparse.ArgumentParser()

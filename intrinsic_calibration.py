@@ -2,18 +2,22 @@ import time
 import datetime
 import numpy as np
 import cv2
+import os
 import glob
 import pickle
 import argparse
+import utils
 from cam_tool import cam_tool
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--result_dir', type=str, help="directory to save results")
 parser.add_argument('--cam_type', type=str, help="Camera type. one of realsense and sony")
 parser.add_argument('--m', type=int, default=8, help="number of rows of the target")
 parser.add_argument('--n', type=int, default=6, help="number of cols of the target")
-parser.add_argument('--size', type=float, default=2.5, help="size of each lattice of target")
+parser.add_argument('--size', type=float, default=0.025, help="size of each lattice of target")
 parser.add_argument('--num_pic', type=int, default=50, help="number of pictures to take")
 parser.add_argument('--period', type=float, default=0.5, help="period between which pictures would be taken")
+
 
 args = parser.parse_args()
 
@@ -77,10 +81,12 @@ print(dist)
 print(rvecs)
 print(tvecs)
 
-pickle.dump(np.array(ret), open('ret.pkl', 'wb'))
-pickle.dump(np.array(mtx), open('mtx.pkl', 'wb'))
-pickle.dump(np.array(dist), open('dist.pkl', 'wb'))
-pickle.dump(np.array(rvecs), open('rvecs.pkl', 'wb'))
-pickle.dump(np.array(tvecs), open('tvecs.pkl', 'wb'))
+utils.create_muldir('results', 'results/intrinsic', 'results/intrinsic/%s'%args.result_dir)
+
+pickle.dump(np.array(ret), open('results/intrinsic/%s/ret.pkl'%args.result_dir, 'wb'))
+pickle.dump(np.array(mtx), open('results/intrinsic/%s/mtx.pkl'%args.result_dir, 'wb'))
+pickle.dump(np.array(dist), open('results/intrinsic/%s/dist.pkl'%args.result_dir, 'wb'))
+pickle.dump(np.array(rvecs), open('results/intrinsic/%s/rvecs.pkl'%args.result_dir, 'wb'))
+pickle.dump(np.array(tvecs), open('results/intrinsic/%s/tvecs.pkl'%args.result_dir, 'wb'))
 
 cam.exit()
