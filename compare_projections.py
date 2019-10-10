@@ -1,27 +1,15 @@
 import os
 import time
 import datetime
-import pygame
-import argparse
 import cv2
 import numpy as np
+import pickle
 import argparse
-import urx
-from cam_tool import cam_tool
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--m', type=int, default=8, help="number of rows of the target")
 parser.add_argument('--n', type=int, default=6, help="number of cols of the target")
-parser.add_argument('--period', type=float, default=0.1, help="period between which pictures would be taken")
 args = parser.parse_args() 
-
-robot = urx.Robot("192.168.1.109")
-
-def quit_pressed():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            return True
-    return False
 
 def rotate_image(img, deg):
     # rotate image deg degree, counterclockwise
@@ -50,47 +38,34 @@ def B2I(p, C2I, C2B):
     p = p / p[2][0]
     return p
 
-static_cam = cam_tool('sony')
-wrist_cam = cam_tool('rs')
-
 starttime = datetime.datetime.now()
 nexttime = starttime + datetime.timedelta(1)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-with open('ext_results/static_C2B.txt', 'r') as f:
-    s_C2B = []
-    for line in f.readlines():
-        s_C2B.append([float(num) for num in line.split(' ')])
-    s_C2B = np.array(s_C2B)
-    print(s_C2B)
-with open('ext_results/wrist_C2W.txt', 'r') as f:
-    w_C2W = []
-    for line in f.readlines():
-        w_C2W.append([float(num) for num in line.split(' ')])
-    w_C2W = np.array(w_C2W)
-    print(w_C2W)
-        
-
-s_C2I = np.array([[1690.07628, 0, 538.004444], [0, 1683.10289, 370.217221], [0, 0, 1]])
-
-w_W2B = np.array(robot.get_pose().array)
-w_C2B = np.matmul(w_W2B, w_C2W)
-w_C2I = np.array([[599.21028451, 0, 318.76859599],  [0, 601.01635294, 223.12283259],[0, 0, 1]])
+with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
+    s_C2I = pickle.load(f)
+with open('results/intrinsic/wrist/mtx.pkl', 'rb') as f:
+    w_C2I = pickle.load(f)
 w_C2I = np.matmul(np.array([[0, 1, 0], [-1, 0, 640], [0, 0, 1]]), w_C2I)
 
-while not quit_pressed():
-    '''while True:
-        t = datetime.datetime.now()
-        if t > nexttime:
-            break
-    nexttime = nexttime + datetime.timedelta(seconds = args.period)'''
+with open('results/extrinsic/static/mtx.pkl', 'rb') as f:
+    s_C2B = pickle.load(f)[0]
+with open('results/extrinsic/wrist/mtx.pkl', 'rb') as f:
+    w_C2W = pickle.load(f)[0]
+        
+img_id = 0
+while True:
+    try:
+        with open('ext_data/poses/%d.yaml'%img_id, 'rb') as f:
+            w_W2B = pickle.load(f)
+        s_img = cv2.imread('ext_data/images/static_%d.jpg'%img_id)
+        w_img = cv2.imread('ext_data/images/wrist_%d.jpg'%img_id)
+    except IOError:
+        break
+    w_C2B = np.matmul(w_W2B, w_C2W)
 
-    static_cam.capture('static_view.jpg')
-    wrist_cam.capture('wrist_view.jpg')
-    
-    s_img = cv2.imread('static_view.jpg')
-    w_img = cv2.imread('wrist_view.jpg')
+    img_id += 1
     w_img = rotate_image(w_img, 90)
    
     s_img = cv2.cvtColor(s_img, cv2.COLOR_BGR2GRAY)
@@ -108,15 +83,14 @@ while not quit_pressed():
         s_img = cv2.drawChessboardCorners(s_img, (args.m, args.n), s_corners, s_ret)
         w_img = cv2.drawChessboardCorners(w_img, (args.m, args.n), w_corners, w_ret)
         
-        
         sum_err = 0
         for i in range(len(s_corners)):
             s_p_I = s_corners[i][0]
             w_p_I = w_corners[i][0]
+            print '----------------point %d---------------'%i
             print 's_p_I:\n', s_p_I, '\nw_p_I:\n', w_p_I
             s_p_B = I2B_with_z_constraint(s_p_I, s_C2I, s_C2B)
             w_p_B = I2B_with_z_constraint(w_p_I, w_C2I, w_C2B)
-            print '----------------point %d---------------'%i
             print 's_p_B:\n', s_p_B, '\nw_p_B:\n', w_p_B
             err = np.linalg.norm(s_p_B - w_p_B)
             print '\nerr :', err

@@ -27,8 +27,8 @@ initialized = False
 
 starttime = datetime.datetime.now()
 nexttime = starttime + datetime.timedelta(seconds = 5)
-
-for i in range(50):
+'''
+for i in range(10):
     while True:
         t = datetime.datetime.now()
         if t > nexttime:
@@ -53,9 +53,19 @@ for i in range(50):
     pic_id += 1
 
     nexttime = nexttime + datetime.timedelta(seconds = 0.5)
+'''
+while True:
+    static_cam.capture('static_view.jpg')
+    wrist_cam.capture('wrist_view.jpg')
+   
+    concat_view = utils.concat_images_in_dir(['static_view.jpg', 'wrist_view.jpg'], 'concat_view.jpg')
 
+    if not initialized:
+        pygame.display.set_mode(pygame.image.load('concat_view.jpg').get_size())
+        initialized = True
+    wrist_cam.show('concat_view.jpg')
 
-    '''speed = [0, 0, 0, 0, 0, 0]
+    speed = [0, 0, 0, 0, 0, 0]
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             break
@@ -93,7 +103,7 @@ for i in range(50):
                     pickle.dump(pos, f)
                 pic_id += 1
                 
-    robot.speedl(speed, acc=0.1, min_time=2)'''
+    robot.speedl(speed, acc=0.1, min_time=2)
 
 robot.close()
 
