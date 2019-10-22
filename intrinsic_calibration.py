@@ -11,20 +11,11 @@ from cam_tool import cam_tool
 parser = argparse.ArgumentParser()
 parser.add_argument('--result_dir', type=str, help="directory to save results")
 parser.add_argument('--cam_type', type=str, help="Camera type. one of realsense and sony")
-parser.add_argument('--m', type=int, default=8, help="number of rows of the target")
+parser.add_argument('--m', type=int, default=9, help="number of rows of the target")
 parser.add_argument('--n', type=int, default=6, help="number of cols of the target")
-parser.add_argument('--size', type=float, default=0.025, help="size of each lattice of target")
+parser.add_argument('--size', type=float, default=0.0228, help="size of each lattice of target")
 parser.add_argument('--num_pic', type=int, default=50, help="number of pictures to take")
 parser.add_argument('--period', type=float, default=0.5, help="period between which pictures would be taken")
-
-def show(file):
-    picture = pygame.image.load(file)
-    main_surface.blit(picture, (0, 0))
-    pygame.display.flip()
-
-C = piggyphoto.camera()
-C.leave_locked()
-C.capture_preview('preview.jpg')
 
 args = parser.parse_args()
 
