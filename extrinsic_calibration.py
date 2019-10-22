@@ -9,8 +9,9 @@ from scipy.optimize import minimize
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cam', type=str, help='cameras to calibrate. one of [\'static\', \'wrist\', \'both\']')
-parser.add_argument('--h', type=int, default=8, help="number of rows of the target")
+parser.add_argument('--h', type=int, default=9, help="number of rows of the target")
 parser.add_argument('--w', type=int, default=6, help="number of cols of the target")
+parser.add_argument('--size', type=float, default=0.0228, help="size of each lattice of target")
 parser.add_argument('--data_dir', type=str, default='/home/tidyboy/calibration/ext_data/')
 parser.add_argument('--show_imgs', type=int, default=1)
 parser.add_argument('--method', type=str, default='nelder-mead', help='which optimization method to use')
@@ -32,7 +33,7 @@ w_points = []
 s_points = []
 W2Bs = [] 
 
-def find_points_from_images(cam):
+def find_points_from_images(cam, square=True):
     i = 0
     imgs = []
     points_dict = {}
@@ -47,8 +48,10 @@ def find_points_from_images(cam):
     for i in range(len(imgs)):
         img = imgs[i]
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret, corners = cv2.findChessboardCorners(img, (args.h, args.w), None)
-        ret, corners = cv2.findCirclesGrid(img, (args.h, args.w), None)
+        if square:
+            ret, corners = cv2.findChessboardCorners(img, (args.h, args.w), None)
+        else:
+            ret, corners = cv2.findCirclesGrid(img, (args.h, args.w), None)
 
         if ret:
             corners = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
@@ -58,10 +61,11 @@ def find_points_from_images(cam):
             if args.show_imgs != 0:
                 cv2.imshow('img', img)
                 cv2.waitKey(0)
-    return points_dict
+    return imgs, points_dict
 
 def intersection_dict_by_indices(dicts):
     result = []
+    indices = []
     for i in range(len(dicts)):
         result.append([])
     for key in dicts[0]:
@@ -72,22 +76,29 @@ def intersection_dict_by_indices(dicts):
         if all_dict_have_this_key:
             for i in range(len(dicts)):
                 result[i].append(dicts[i][key])
-            with open(args.data_dir + '/poses/%d.yaml'%key, 'rb') as f:
-                W2Bs.append(pickle.load(f))
-    return result
+            indices.append(key)
+    return result, indices
     
+img_indices = []
 
-if s_imgs_needed:
-    s_points = find_points_from_images('static')
-    if w_imgs_needed:
-        w_points = find_points_from_images('wrist')
-        s_points, w_points = intersection_dict_by_indices([s_points, w_points])
-    else:
-        s_points = intersection_dict_by_indices([s_points])[0]
-elif w_imgs_needed:
-    w_points = find_points_from_images('wrist')
-    w_points = intersection_dict_by_indices([w_points])[0]
+if args.cam == 'both' :
+    s_imgs, s_points = find_points_from_images('static', True)
+    w_imgs, w_points = find_points_from_images('wrist', True)
+    points, img_indices = intersection_dict_by_indices([s_points, w_points])
+    s_points = points[0]
+    w_points = points[1]
+elif args.cam == 'static' : 
+    s_imgs, s_points = find_points_from_images('static', False)
+    s_points, img_indices = intersection_dict_by_indices([s_points])
+    s_points = s_points[0]
+elif args.cam == 'wrist' :
+    w_imgs, w_points = find_points_from_images('wrist', False)
+    w_points, img_indices = intersection_dict_by_indices([w_points])
+    w_points = w_points[0]
 
+for i in img_indices:
+    with open(args.data_dir + '/poses/%d.yaml'%i, 'rb') as f:
+        W2Bs.append(pickle.load(f))
 
 '''for j in range(i):
     if s_imgs_needed:
@@ -121,7 +132,7 @@ elif w_imgs_needed:
             cv2.waitKey(0)'''
 
 b = len(W2Bs)
-print 'found chessboard corners in %d images'%b
+print 'found patterns in %d images'%b
 n = args.h * args.w
 if s_imgs_needed:
     s_points = np.array(s_points) # b * n * 2
@@ -141,19 +152,20 @@ W2Bs = np.array(W2Bs) # b * 4 * 4
 
 target_points= np.zeros((args.h*args.w, 3), np.float32)
 target_points[:,:2] = np.mgrid[0:args.h,0:args.w].T.reshape(-1,2)
-target_points = target_points * 0.025
+target_points = target_points * args.size
 
-
-with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
-    s_C2I = pickle.load(f)
-with open('results/intrinsic/wrist/mtx.pkl', 'rb') as f:
-    w_C2I = pickle.load(f)
+if s_imgs_needed:
+    with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
+        s_C2I = pickle.load(f)
+if w_imgs_needed:
+    with open('results/intrinsic/wrist/mtx.pkl', 'rb') as f:
+        w_C2I = pickle.load(f)
 #w_C2I = np.matmul(np.array([[0, 1, 0], [-1, 0, 640], [0, 0, 1]]), w_C2I)
 
 # initial guess
-s_C2B_quat_0 = Quaternion(matrix=np.array[[1., 0., 0.], [0., -1., 0.], [0., 0., -1.]])
+s_C2B_quat_0 = Quaternion(matrix=np.array([[1., 0., 0.], [0., -1., 0.], [0., 0., -1.]])).q
 s_C2B_trans_0 = np.array([-0.44, -0.1, 1.1])
-w_C2W_quat_0 = Quaternion(matrix=np.array[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])
+w_C2W_quat_0 = Quaternion(matrix=np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])).q
 w_C2W_trans_0 = np.array([-0.02, -0.09, 0.02])
 T2B_quat_0 = Quaternion(matrix=np.array([[0., -1., 0.], [1., 0., 0.], [0., 0., 1.]])).q
 T2B_trans_0 = np.array([-0.37, -0.31, 0.])
@@ -194,10 +206,7 @@ def static_loss(x):
         print 'step%d : %f'%(step, l)
     return l
 
-def wrist_loss(x):
-    # x : concatenation of w_C2W_quat, w_C2W_trans, T2B_quat, T2B_trans. shape : (14)
-    global step
-    step += 1
+def w_reprojected(x):
     w_C2W = quat_trans_to_rot(x[0:4], x[4:7])               # 4 * 4
     T2B = quat_trans_to_rot(x[7:11], x[11:14])              # 4 * 4
 
@@ -211,7 +220,14 @@ def wrist_loss(x):
     p = p[:, :, :3, :]                                      # b * n * 3 * 1
     p = np.matmul(w_C2I, p)                                 # b * n * 3 * 1
     p = p  / np.expand_dims(p[:, :, 2, :], axis=2)
+    return p
 
+def wrist_loss(x):
+    # x : concatenation of w_C2W_quat, w_C2W_trans, T2B_quat, T2B_trans. shape : (14)
+    global step
+    step += 1
+    p = w_reprojected(x)
+    
     l = np.mean(np.square(p - w_p_I))
     if step % 1000 == 0:
         print 'step%d : %f'%(step, l)
@@ -246,10 +262,18 @@ if args.cam == 'both':
     x = minimize(repr_loss, np.concatenate([s_C2B_quat_0, s_C2B_trans_0, w_C2W_quat_0, w_C2W_trans_0]), method = args.method, options={'xtol':1e-9, 'maxiter' : 1000000, 'maxfev' : 64000000, 'disp' : True}).x
 elif args.cam == 'wrist':
     x = minimize(wrist_loss, np.concatenate([w_C2W_quat_0, w_C2W_trans_0, T2B_quat_0, T2B_trans_0]), method = args.method, options={'xtol':1e-9, 'maxiter' : 1000000, 'maxfev' : 64000000, 'disp' : True}).x
+    p = w_reprojected(x)
+    for i in img_indices:
+        w_img_reprojected = np.copy(w_imgs[i])
+        for j in range(n):
+            w_img_reprojected = cv2.circle(w_img_reprojected, (int(p[i][j][0][0]), int(p[i][j][1][0])), 2, (0, 0, 255), -1)
+        cv2.imshow('w_img_reprojected', w_img_reprojected)
+        cv2.waitKey(0)
+            
+
 elif args.cam == 'static':
     x = minimize(static_loss, np.concatenate([s_C2B_quat_0, s_C2B_trans_0, w_T2W_quat_0, w_T2W_trans_0]), method = args.method, options={'xtol':1e-9, 'maxiter' : 1000000, 'maxfev' : 64000000, 'disp' : True}).x
 
-print(x)
 x0 = quat_trans_to_rot(x[0:4], x[4:7])
 x1 = quat_trans_to_rot(x[7:11], x[11:14])
 print x0
