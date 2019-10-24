@@ -1,0 +1,8 @@
+*.jpg
+*.png
+*.pkl
+results/
+ext_results/
+ext_data/
+ext_data_static/
+ext_data_wrist/
