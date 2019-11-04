@@ -126,6 +126,8 @@ def get_pascal_labels():
                        [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                        [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                        [0, 64, 128]])
+img = Image.open("val_scatter_0008.jpg").convert('RGB')
+
 
 class DeeplabModule():
     def __init__(self):
