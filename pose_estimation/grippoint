@@ -36,6 +36,10 @@ class FixScaleCrop(object):
         x1 = int(round((w - self.crop_size) / 2.))
         y1 = int(round((h - self.crop_size) / 2.))
         img = img.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))
+        
+        
+        
+      
 
         return img
     
@@ -828,3 +832,7 @@ while i <7:
         i+=1
     cv2.circle(img_overlayed, rot_point, 1,(0,125, 255), 3)
     grip.append(rot_point)
+
+
+print(grip)
+plt.figure(figsize=(15,12)), plt.imshow(img_overlayed), plt.show()
