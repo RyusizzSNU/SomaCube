@@ -10,19 +10,23 @@ from cam_tool import cam_tool
 from pyquaternion import Quaternion
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', type=str, default='/home/tidyboy/calibration/ext_data/')
-parser.add_argument('--cam_type', type=str)
+parser.add_argument('--data_dir', type=str, default='ext_data/')
+parser.add_argument('--cam', type=str, help="cameras to make data pairs with. one of ['static', 'wrist', 'both']")
+parser.add_argument('--static_cam_model', type=str, default='sony')
+parser.add_argument('--wrist_cam_model', type=str, default='rs')
 args = parser.parse_args()
 
 utils.create_muldir(args.data_dir, args.data_dir + '/images', args.data_dir + '/poses')
 
 #data_dir = '/home/tidyboy/ARAICodes/catkin_ws/src/robot_cal_tools/rct_examples/data/target_6x7_0/'
 
+static_on = (args.cam == 'static' or args.cam == 'both')
+wrist_on = (args.cam == 'wrist' or args.cam == 'both')
 
-if args.cam_type == 'sony' or args.cam_type == 'both':
-    static_cam = cam_tool('sony')
-if args.cam_type == 'rs' or args.cam_type == 'both':
-    wrist_cam = cam_tool('rs')
+if static_on:
+    static_cam = cam_tool(args.static_cam_model)
+if wrist_on:
+    wrist_cam = cam_tool(args.wrist_cam_model)
 
 robot = urx.Robot("192.168.1.109")
 
@@ -31,28 +35,26 @@ initialized = False
 
 starttime = datetime.datetime.now()
 nexttime = starttime + datetime.timedelta(seconds = 5)
-while True:
-    if args.cam_type == 'sony' or args.cam_type == 'both':
+while not utils.quit_pressed():
+    if static_on:
         static_cam.capture('static_view.jpg')
-    if args.cam_type == 'rs' or args.cam_type == 'both':
+    if wrist_on:
         wrist_cam.capture('wrist_view.jpg')
     
     view_fname = ''
-    if args.cam_type == 'both':
+    if args.cam == 'both':
         view_fname = 'concat_view.jpg'
         concat_view = utils.concat_images_in_dir(['static_view.jpg', 'wrist_view.jpg'], view_fname)
-    elif args.cam_type == 'sony':
+    elif args.cam == 'static':
         view_fname = 'static_view.jpg'
-    elif args.cam_type == 'rs':
+    elif args.cam == 'wrist':
         view_fname = 'wrist_view.jpg'
 
     if not initialized:
         pygame.display.set_mode(pygame.image.load(view_fname).get_size())
         initialized = True
-    if args.cam_type == 'rs' or args.cam_type == 'both':
-        wrist_cam.show(view_fname)
-    elif args.cam_type == 'sony':
-        static_cam.show(view_fname)
+
+    utils.show(view_fname)
     speed = [0, 0, 0, 0, 0, 0]
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -83,9 +85,9 @@ while True:
             if event.key == pygame.K_i:
                 speed[5] = 0.1
             if event.key == pygame.K_SPACE:
-                if args.cam_type == 'sony' or args.cam_type == 'both':
+                if static_on:
                     static_cam.capture(args.data_dir + '/images/static_%d.jpg'%pic_id)
-                if args.cam_type == 'rs' or args.cam_type == 'both':
+                if wrist_on:
                     wrist_cam.capture(args.data_dir + '/images/wrist_%d.jpg'%pic_id)
                 pos = robot.get_pose()
                 pos = np.array(pos.array)

@@ -9,8 +9,8 @@ import argparse
 from cam_tool import cam_tool
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--h', type=int, default=9, help="number of rows of the target")
-parser.add_argument('--w', type=int, default=6, help="number of cols of the target")
+parser.add_argument('--w', type=int, default=9, help="number of cols of the target")
+parser.add_argument('--h', type=int, default=6, help="number of rows of the target")
 parser.add_argument('--size', type=float, default=0.0228, help="size of each lattice of target")
 parser.add_argument('--auto', type=int, default=0)
 args = parser.parse_args() 
@@ -35,14 +35,16 @@ cam = cam_tool('sony')
 cam.capture('preview.jpg')
 cam.show('preview.jpg')
 
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+_, imgpoints = utils.find_imagepoints_from_images([cv2.imread('preview.jpg')], args.w, args.h, show_imgs=1)
+imgpoints = np.squeeze(imgpoints[0])
+
 img = cv2.imread('preview.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-ret, corners = cv2.findChessboardCorners(img, (args.h, args.w), None)
+ret, corners = cv2.findChessboardCorners(img, (args.w, args.h), None)
 if ret:
     corners = cv2.cornerSubPix(img, corners, (11, 11), (-1, -1), criteria)
-    img = cv2.drawChessboardCorners(img, (args.h, args.w), corners, ret)
+    img = cv2.drawChessboardCorners(img, (args.w, args.h), corners, ret)
     cv2.imshow('img', img)
     cv2.waitKey(0)
 
@@ -59,7 +61,7 @@ nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 5)
 while True:
     wait()
 
-    p_I = corners[i][0]
+    p_I = imgpoints[i]
     p_I = [[p_I[0]], [p_I[1]], [1]]
     p_C = np.matmul(np.linalg.inv(C2I), p_I)
     p_B = np.matmul(C2B, np.concatenate((p_C, [[1]]), axis=0))
