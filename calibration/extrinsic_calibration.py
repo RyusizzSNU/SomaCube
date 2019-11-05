@@ -113,19 +113,12 @@ w_T2W_trans_0 = np.array([0.05, -0.05, -0.01])
 
 step = 0
 
-def quat_trans_to_rot(quat, trans):
-    # quat : quaternion of shape (4)
-    # trans : translation vector of shape (3)
-    rot = Quaternion(quat).rotation_matrix                  # 3 * 3
-    rot = np.concatenate([rot, np.expand_dims(trans, 1)], 1)  # 3 * 4
-    return np.concatenate([rot, [[0., 0., 0., 1.]]], 0)       # 4 * 4
-
 def static_loss(x):
     # x : concatenation of s_C2B_quat, s_C2B_trans, w_T2W_quat, w_T2W_trans. shape : (14)
     global step
     step += 1
-    s_C2B = quat_trans_to_rot(x[0:4], x[4:7])               # 4 * 4
-    w_T2W = quat_trans_to_rot(x[7:11], x[11:14])            # 4 * 4
+    s_C2B = utils.quat_trans_to_rigid(x[0:4], x[4:7])               # 4 * 4
+    w_T2W = utils.quat_trans_to_rigid(x[7:11], x[11:14])            # 4 * 4
 
     p_T = np.reshape(obj_points, [-1, 3])
     p_T = np.concatenate([p_T, np.ones([n, 1])], 1)         # n * 4
@@ -144,8 +137,8 @@ def static_loss(x):
     return l
 
 def w_reprojected(x):
-    w_C2W = quat_trans_to_rot(x[0:4], x[4:7])               # 4 * 4
-    T2B = quat_trans_to_rot(x[7:11], x[11:14])              # 4 * 4
+    w_C2W = utils.quat_trans_to_rigid(x[0:4], x[4:7])               # 4 * 4
+    T2B = utils.quat_trans_to_rigid(x[7:11], x[11:14])              # 4 * 4
 
     p_T = np.reshape(obj_points, [-1, 3])
     p_T = np.concatenate([p_T, np.ones([n, 1])], 1)         # n * 4
@@ -175,8 +168,8 @@ def repr_loss(x):
     global step
     step += 1
 
-    s_C2B = quat_trans_to_rot(x[0:4], x[4:7])               # 4 * 4
-    w_C2W = quat_trans_to_rot(x[7:11], x[11:14])            # 4 * 4
+    s_C2B = utils.quat_trans_to_rigid(x[0:4], x[4:7])               # 4 * 4
+    w_C2W = utils.quat_trans_to_rigid(x[7:11], x[11:14])            # 4 * 4
 
     w_C2B = np.matmul(W2Bs, w_C2W)                          # b * 4 * 4
     w_I2C = np.linalg.inv(w_C2I)                            # 3 * 3
@@ -211,8 +204,8 @@ elif args.cam == 'wrist':
 elif args.cam == 'static':
     x = minimize(static_loss, np.concatenate([s_C2B_quat_0, s_C2B_trans_0, w_T2W_quat_0, w_T2W_trans_0]), method = args.method, options={'xtol':1e-9, 'maxiter' : 1000000, 'maxfev' : 64000000, 'disp' : True}).x
 
-x0 = quat_trans_to_rot(x[0:4], x[4:7])
-x1 = quat_trans_to_rot(x[7:11], x[11:14])
+x0 = utils.quat_trans_to_rigid(x[0:4], x[4:7])
+x1 = utils.quat_trans_to_rigid(x[7:11], x[11:14])
 print x0
 print x1
 utils.create_muldir('results', 'results/extrinsic/', 'results/extrinsic/%s'%args.cam)

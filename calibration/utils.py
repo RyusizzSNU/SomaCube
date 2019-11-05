@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import pygame
+from pyquaternion import Quaternion
 
 def create_dir(dirname):
     if not os.path.exists(dirname):
@@ -109,3 +110,17 @@ def show_image(picture):
 def show(fname):
     picture = pygame.image.load(fname)
     show_image(picture)
+
+def rot_trans_to_rigid(rot, trans):
+    rot = np.concatenate([rot, np.expand_dims(trans, 1)], 1)
+    return np.concatenate([rot, [[0., 0., 0., 1.]]], 0)
+
+def quat_trans_to_rigid(quat, trans):
+    # quat : quaternion of shape (4)
+    # trans : translation vector of shape (3)
+    rot = Quaternion(quat).rotation_matrix
+    return rot_trans_to_rigid(rot, trans)
+
+def axis_angle_trans_to_rigid(axis, deg, trans):
+    rot = Quaternion(axis=axis, degrees=deg).rotation_matrix
+    return rot_trans_to_rigid(rot, trans) 
