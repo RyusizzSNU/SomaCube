@@ -190,7 +190,7 @@ def pose1(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
         
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1
             x, y, w, h = cv2.boundingRect(cnt)
@@ -237,7 +237,7 @@ def pose2(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
         
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=3
             x, y, w, h = cv2.boundingRect(cnt)
@@ -285,7 +285,7 @@ def pose2(cx,cy,angle) : #block4_2
 def pose3(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -333,7 +333,7 @@ def pose3(cx,cy,angle) : #block4_2
 def pose4(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -381,7 +381,7 @@ def pose4(cx,cy,angle) : #block4_2
 def pose5(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -429,7 +429,7 @@ def pose5(cx,cy,angle) : #block4_2
 def pose6(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr = 1
             x, y, w, h = cv2.boundingRect(cnt)
@@ -476,7 +476,7 @@ def pose6(cx,cy,angle) : #block4_2
 def pose7(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -506,7 +506,7 @@ def pose7(cx,cy,angle) : #block4_2
     
             standardpoint=(x,y)
             
-            ag = math.radians(-angle)-pa
+            ag = math.radians(-angle)+pa
             ##여기에 angle 값 넣으면됨
             ########
         
@@ -523,7 +523,7 @@ def pose7(cx,cy,angle) : #block4_2
 def pose8(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<10400)) :
+        if((area >2000)&(area<100400)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
