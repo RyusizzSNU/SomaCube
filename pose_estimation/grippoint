@@ -772,8 +772,11 @@ for i in range(7) :
     if l == 5:
         b[i] = int(agstr[0])*100+int(agstr[1])*10+int(agstr[2])+int(agstr[4])*0.1
         c+=1
-    else : 
+    elif l == 4 : 
         b[i] = int(agstr[0])*10+int(agstr[1])*1+int(agstr[3])*0.1
+        c+=1
+    else :
+        b[i] = int(agstr[0])*1+int(agstr[2])*0.1
         c+=1
  
           
