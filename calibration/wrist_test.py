@@ -32,7 +32,7 @@ def wait():
 
 robot = urx.Robot("192.168.1.109")
 
-cam = cam_tool('sony')
+cam = cam_tool('rs')
 cam.capture('preview.jpg')
 cam.show('preview.jpg')
 
@@ -42,13 +42,13 @@ imgpoints = np.squeeze(imgpoints[0])
 img = cv2.imread('preview.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-with open('results/extrinsic/static/mtx.pkl', 'rb') as f:
-    C2B = pickle.load(f)[0]
-    print 'C2B :\n', C2B
-with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
+with open('results/extrinsic/wrist/mtx.pkl', 'rb') as f:
+    C2W = pickle.load(f)[0]
+    print 'C2W :\n', C2W
+with open('results/intrinsic/wrist/mtx.pkl', 'rb') as f:
     C2I = pickle.load(f)
     print 'C2I :\n', C2I
-
+W2B = np.array(robot.get_pose().array)
 i = 0
 nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 5)
 
@@ -58,10 +58,12 @@ while True:
     p_I = imgpoints[i]
     p_I = [[p_I[0]], [p_I[1]], [1]]
     p_C = np.matmul(np.linalg.inv(C2I), p_I)
-    p_B = np.matmul(C2B, np.concatenate((p_C, [[1]]), axis=0))
+    p_W = np.matmul(C2W, np.concatenate((p_C, [[1]]), axis=0))
+    p_B = np.matmul(W2B, p_W)
 
     o_C = [[0], [0], [0], [1]]
-    o_B = np.matmul(C2B, o_C)
+    o_W = np.matmul(C2W, o_C)
+    o_B = np.matmul(W2B, o_W)
 
     p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
 

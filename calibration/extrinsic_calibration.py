@@ -104,7 +104,7 @@ s_C2B_quat_0 = Quaternion(matrix=np.array([[1., 0., 0.], [0., -1., 0.], [0., 0.,
 s_C2B_trans_0 = np.array([-0.44, -0.1, 1.1])
 w_C2W_quat_0 = Quaternion(matrix=np.array([[0., 1., 0.], [-1., 0., 0.], [0., 0., 1.]])).q
 w_C2W_trans_0 = np.array([-0.02, -0.09, 0.02])
-T2B_quat_0 = Quaternion(matrix=np.array([[0., 1., 0.], [-1., 0., 0.], [0., 0., 1.]])).q
+T2B_quat_0 = Quaternion(matrix=np.array([[0., 1., 0.], [1., 0., 0.], [0., 0., -1.]])).q
 T2B_trans_0 = np.array([-0.4531, -0.20, 0.])
 w_T2W_quat_0 = Quaternion(matrix=np.array([[0., -1., 0.], [1., 0., 0.], [0., 0., 1.]])).q
 w_T2W_trans_0 = np.array([0.05, -0.05, -0.01])
