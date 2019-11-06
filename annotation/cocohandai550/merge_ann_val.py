@@ -1,5 +1,7 @@
 import json
 
+#모아진 검증용 annotation 데이터를 합쳐 저장
+
 file_list = [
   "ann_val/out_block1.json",
   "ann_val/out_block2.json",

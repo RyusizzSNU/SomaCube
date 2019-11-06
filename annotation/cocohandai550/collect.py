@@ -5,6 +5,7 @@ import os
 import time
 #python2
 
+# 종료 상황을 감지
 def quit_pressed():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -14,6 +15,7 @@ def quit_pressed():
                 return True
     return False
 
+# 키보드의 "." 키가 눌렸는지 감지
 def key_pressed():
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -35,7 +37,11 @@ def main():
     prs.add_argument("-p", "--prefix_name", type=str, default='')
     prs.add_argument("-s", "--suffix_index", type=int, default=-1)
     prs.add_argument("-n", "--number_of_data", type=int, default=1)
-
+    '''
+    [실행 예]
+    python2 collect.py -p block1 -n 20
+    => 현재 디렉토리에 "block1_0.jpg" ~ "block1_20.jpg" 사진을 저장함
+    '''
     args = prs.parse_args()
 
     pygame.init()
@@ -51,6 +57,8 @@ def main():
     n = args.number_of_data
     #screen = pygame.display.set_mode((100, 100))
 
+
+    # 카메라를 통해 비친 화면을 통해 계속해서 보여줌
     cam = piggyphoto.camera()
     cam.leave_locked()
     cam.capture_preview('preview.jpg')
@@ -68,8 +76,10 @@ def main():
     else:
         i = 0
         done = False
+        # n개의 이미지만큼 촬
         while i < n and not done:
             key_pressed = False
+            # "."키가 눌렸으면 저장함
             file_name = osp.join(dir_path, '{}_{:04d}.jpg'.format(args.prefix_name, i))
             while not(key_pressed):
                 cam.capture_preview(file_name)

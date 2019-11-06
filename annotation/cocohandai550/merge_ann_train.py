@@ -1,5 +1,7 @@
 import json
 
+#모아진 학습용 annotation 데이터를 합쳐 저장
+
 file_list = [
   "ann_train/out_block1.json",
   "ann_train/out_block2.json",
