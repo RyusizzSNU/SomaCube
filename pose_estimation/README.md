@@ -1,7 +1,7 @@
 pose_estimation
 ================
 
-- pp3와 grippoint는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야 할 좌표를 계산함.
+- pp3.py와 grippoint.py는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야 할 좌표를 계산함.
 
 - segmentation/deepLab/deeplab manual.md에 따라 환경 구축해야 함.
 
