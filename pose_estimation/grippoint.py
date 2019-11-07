@@ -699,7 +699,7 @@ for meth in methods:
         max_index = 0
         for j, temp in enumerate(template_lists):
             temp_img = cv2.imread(temp, cv2.IMREAD_GRAYSCALE) #TODO: 템플릿 크기조절 필요
-            temp_img = np.array(Image.fromarray(temp_img).resize((194,194)))
+            temp_img = np.array(Image.fromarray(temp_img).resize((175,175)))
             
             w,h = temp_img.shape[::-1]
             print(i, j, w, h)
@@ -727,7 +727,7 @@ for meth in methods:
         cv2.rectangle(img_boxed, blocks_p1[i][0], blocks_p1[i][1], lable_to_color[i], 5)
         print(blocks_pose[i])
         temp_img = cv2.imread(blocks_pose[i], cv2.IMREAD_GRAYSCALE)
-        temp_img = np.array(Image.fromarray(temp_img).resize((194,194)))
+        temp_img = np.array(Image.fromarray(temp_img).resize((175,175)))
 
         plt.imshow(temp_img), plt.show()
         
