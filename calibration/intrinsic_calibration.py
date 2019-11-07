@@ -37,8 +37,8 @@ for i in range(args.num_pic):
             t_list.append(t)
             break
 
-    cam.capture(filename + str(i) + '.jpg')
-    utils.show(filename + str(i) + '.jpg')
+    cam.capture('%s_%d.jpg'%(filename, i))
+    utils.show('%s_%d.jpg'%(filename, i))
     nexttime = nexttime + datetime.timedelta(seconds = args.period)
 
 images = utils.find_images_in_dir(filename)
@@ -69,5 +69,5 @@ pickle.dump(np.array(tvecs), open('results/intrinsic/%s/tvecs.pkl'%args.cam, 'wb
 
 cam.exit()
 
-for img_fname in img_fnames:
+for img_fname in glob.glob('%s_*.jpg'%filename):
     os.remove(img_fname)

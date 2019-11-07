@@ -52,22 +52,12 @@ W2B = np.array(robot.get_pose().array)
 i = 0
 nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 5)
 
-while True:
+for i in range(len(imgpoints)):
     wait()
 
     p_I = imgpoints[i]
-    p_I = [[p_I[0]], [p_I[1]], [1]]
-    p_C = np.matmul(np.linalg.inv(C2I), p_I)
-    p_W = np.matmul(C2W, np.concatenate((p_C, [[1]]), axis=0))
-    p_B = np.matmul(W2B, p_W)
-
-    o_C = [[0], [0], [0], [1]]
-    o_W = np.matmul(C2W, o_C)
-    o_B = np.matmul(W2B, o_W)
-
-    p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
+    p = utils.wrist_image_to_base(p_I, C2I, C2W, W2B)
 
     pose = np.array([[0., 1., 0., p[0]], [1., 0., 0., p[1]], [0., 0., -1., 0.19], [0., 0., 0., 1.]])
     robot.movex('movel', pose, acc= 0.1, vel=0.2)
-    i += 1
     nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 1)

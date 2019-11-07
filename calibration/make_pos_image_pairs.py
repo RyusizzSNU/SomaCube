@@ -14,9 +14,15 @@ parser.add_argument('--data_dir', type=str, default='ext_data/')
 parser.add_argument('--cam', type=str, help="cameras to make data pairs with. one of ['static', 'wrist', 'both']")
 parser.add_argument('--static_cam_model', type=str, default='sony')
 parser.add_argument('--wrist_cam_model', type=str, default='rs')
+parser.add_argument('--auto', type=int, default = 0)
+parser.add_argument('--num_pic', type=int, default=50, help="number of pictures to take")
+parser.add_argument('--period', type=float, default=0.5, help="period between which pictures would be taken")
+
+
 args = parser.parse_args()
 
-utils.create_muldir(args.data_dir, args.data_dir + '/images', args.data_dir + '/poses')
+utils.create_muldir(args.data_dir, args.data_dir + '/images', args.data_dir + '/poses',\
+        args.data_dir + '/images/' + args.cam, args.data_dir + '/poses/' + args.cam)
 
 #data_dir = '/home/tidyboy/ARAICodes/catkin_ws/src/robot_cal_tools/rct_examples/data/target_6x7_0/'
 
@@ -33,9 +39,30 @@ robot = urx.Robot("192.168.1.109")
 pic_id = 0
 initialized = False
 
-starttime = datetime.datetime.now()
-nexttime = starttime + datetime.timedelta(seconds = 5)
+nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 5)
+
+def wait():
+    while True:
+        if args.auto != 0:
+            t = datetime.datetime.now()
+            if t > nexttime:
+                return
+        else:
+            return
+
+def record():
+    global pic_id
+    if static_on:
+        static_cam.capture(args.data_dir + '/images/%s/static_%d.jpg'%(args.cam, pic_id))
+    if wrist_on:
+        wrist_cam.capture(args.data_dir + '/images/%s/wrist_%d.jpg'%(args.cam, pic_id))
+    pos = np.array(robot.get_pose().array)
+    with open(args.data_dir + '/poses/%s/%d.yaml'%(args.cam, pic_id), 'w') as f:
+        pickle.dump(pos, f)
+    pic_id += 1
+
 while not utils.quit_pressed():
+    wait()
     if static_on:
         static_cam.capture('static_view.jpg')
     if wrist_on:
@@ -55,47 +82,45 @@ while not utils.quit_pressed():
         initialized = True
 
     utils.show(view_fname)
-    speed = [0, 0, 0, 0, 0, 0]
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    if args.auto == 0: 
+        speed = [0, 0, 0, 0, 0, 0]
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                break
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    speed[0] = -0.1
+                if event.key == pygame.K_RIGHT:
+                    speed[0] = 0.1
+                if event.key == pygame.K_DOWN:
+                    speed[1] = -0.1
+                if event.key == pygame.K_UP:
+                    speed[1] = 0.1
+                if event.key == pygame.K_s:
+                    speed[2] = -0.1
+                if event.key == pygame.K_w:
+                    speed[2] = 0.1
+                if event.key == pygame.K_q:
+                    speed[3] = -0.1
+                if event.key == pygame.K_e:
+                    speed[3] = 0.1
+                if event.key == pygame.K_h:
+                    speed[4] = -0.1
+                if event.key == pygame.K_k:
+                    speed[4] = 0.1
+                if event.key == pygame.K_y:
+                    speed[5] = -0.1
+                if event.key == pygame.K_i:
+                    speed[5] = 0.1
+                if event.key == pygame.K_SPACE:
+                    record()
+                    
+        robot.speedl(speed, acc=0.1, min_time=2)
+    else:
+        record()
+        if(pic_id >= args.num_pic):
             break
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                speed[0] = -0.1
-            if event.key == pygame.K_RIGHT:
-                speed[0] = 0.1
-            if event.key == pygame.K_DOWN:
-                speed[1] = -0.1
-            if event.key == pygame.K_UP:
-                speed[1] = 0.1
-            if event.key == pygame.K_s:
-                speed[2] = -0.1
-            if event.key == pygame.K_w:
-                speed[2] = 0.1
-            if event.key == pygame.K_q:
-                speed[3] = -0.1
-            if event.key == pygame.K_e:
-                speed[3] = 0.1
-            if event.key == pygame.K_h:
-                speed[4] = -0.1
-            if event.key == pygame.K_k:
-                speed[4] = 0.1
-            if event.key == pygame.K_y:
-                speed[5] = -0.1
-            if event.key == pygame.K_i:
-                speed[5] = 0.1
-            if event.key == pygame.K_SPACE:
-                if static_on:
-                    static_cam.capture(args.data_dir + '/images/static_%d.jpg'%pic_id)
-                if wrist_on:
-                    wrist_cam.capture(args.data_dir + '/images/wrist_%d.jpg'%pic_id)
-                pos = robot.get_pose()
-                pos = np.array(pos.array)
-                with open(args.data_dir + '/poses/%d.yaml'%pic_id, 'w') as f:
-                    pickle.dump(pos, f)
-                pic_id += 1
-                
-    robot.speedl(speed, acc=0.1, min_time=2)
+        nexttime = datetime.datetime.now() + datetime.timedelta(seconds = args.period)
 
 robot.close()
 

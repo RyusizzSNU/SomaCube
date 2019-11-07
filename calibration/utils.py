@@ -63,7 +63,7 @@ def rotate_image(img, deg):
 
     rows, cols = img.shape[:2]
     M = cv2.getRotationMatrix2D((cols/2, rows/2), deg, 1)
-    return cv2.warpAffine(img, M, (rows, cols))
+    return cv2.warpAffine(img, M, (cols, rows))
 
 
 def find_imagepoints_from_images(images, w, h, square=True, show_imgs=0, rotate_angle=0):
@@ -126,16 +126,32 @@ def axis_angle_trans_to_rigid(axis, deg, trans):
     rot = Quaternion(axis=axis, degrees=deg).rotation_matrix
     return rot_trans_to_rigid(rot, trans)
 
-def load_static_C2B():
-    with open('results/extrinsic/static/mtx.pkl', 'rb') as f:
+def load_static_C2B(calib='static'):
+    with open('results/extrinsic/%s/mtx.pkl'%calib, 'rb') as f:
         C2B = pickle.load(f)[0]
-        print 'C2B :\n', C2B
+        print 'static C2B from %s calibration:\n'%calib, C2B
     return C2B
 
 def load_static_C2I():
     with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
         C2I = pickle.load(f)
-        print 'C2I :\n', C2I
+        print 'static C2I :\n', C2I
+    return C2I
+
+def load_wrist_C2W(calib='wrist'):
+    with open('results/extrinsic/%s/mtx.pkl'%calib, 'rb') as f:
+        if calib == 'both':
+            C2W = pickle.load(f)[1]
+            print 'wrist C2W from both calibration:\n', C2W
+        elif calib == 'wrist':
+            C2W = pickle.load(f)[0]
+            print 'wrist C2W from wrist calibration:\n', C2W
+    return C2W
+
+def load_wrist_C2I():
+    with open('results/intrinsic/wrist/mtx.pkl', 'rb') as f:
+        C2I = pickle.load(f)
+        print 'wrist C2I :\n', C2I
     return C2I
 
 def static_image_to_base(p_I, C2I, C2B):
@@ -148,3 +164,33 @@ def static_image_to_base(p_I, C2I, C2B):
 
     p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
     return p
+
+def wrist_image_to_base(p_I, C2I, C2W, W2B):
+    p_I = [[p_I[0]], [p_I[1]], [1]]
+    p_C = np.matmul(np.linalg.inv(C2I), p_I)
+    p_W = np.matmul(C2W, np.concatenate((p_C, [[1]]), axis=0))
+    p_B = np.matmul(W2B, p_W)
+
+    o_C = [[0], [0], [0], [1]]
+    o_W = np.matmul(C2W, o_C)
+    o_B = np.matmul(W2B, o_W)
+
+    p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
+    return p
+
+def base_to_static_image(p_B, C2I, C2B):
+    p_B = [[p_B[0]], [p_B[1]], [p_B[2]], [1]]
+    p_C = np.matmul(np.linalg.inv(C2B), p_B)
+    p_C = p_C[:3, :]
+    p_I = np.squeeze(np.matmul(C2I, p_C))
+    p_I = p_I / p_I[2]
+    return p_I[:2]
+
+def base_to_wrist_image(p_B, C2I, C2W, W2B):
+    p_B = [[p_B[0]], [p_B[1]], [p_B[2]], [1]]
+    p_W = np.matmul(np.linalg.inv(W2B), p_B)
+    p_C = np.matmul(np.linalg.inv(C2W), p_W)
+    p_C = p_C[:3, :]
+    p_I = np.squeeze(np.matmul(C2I, p_C))
+    p_I = p_I / p_I[2]
+    return p_I[:2]
