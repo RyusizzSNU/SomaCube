@@ -185,7 +185,7 @@ def restoreOrigin(sample):
 #     return np.transpose(k, (0, 2, 1))
     return k
     
-def pose1(cx,cy,angle) : #block4_2
+def pose1(cx,cy,angle) : 
     
      for cnt in contours:
         area = cv2.contourArea(cnt)
@@ -221,9 +221,7 @@ def pose1(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)
-            ##여기에 angle 값 넣으면됨
-            ########
-        
+           
         
         
             rx =cx+a*math.cos(ag)
@@ -270,9 +268,7 @@ def pose2(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)
-            ##여기에 angle 값 넣으면됨
-            ########
-        
+           
         
         
             rx =cx+a*math.cos(ag)
@@ -283,7 +279,7 @@ def pose2(cx,cy,angle) : #block4_2
             
             return center,rot_point
             
-def pose3(cx,cy,angle) : #block4_2
+def pose3(cx,cy,angle):
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<104000)) :
@@ -318,9 +314,7 @@ def pose3(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)+pa
-            ##여기에 angle 값 넣으면됨
-            ########
-        
+            
         
         
             rx =cx+a*math.cos(ag)
@@ -331,7 +325,7 @@ def pose3(cx,cy,angle) : #block4_2
             
             return center,rot_point
         
-def pose4(cx,cy,angle) : #block4_2
+def pose4(cx,cy,angle) : 
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<104000)) :
@@ -366,8 +360,7 @@ def pose4(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)-pa
-            ##여기에 angle 값 넣으면됨
-            ########
+            
         
         
         
@@ -379,7 +372,7 @@ def pose4(cx,cy,angle) : #block4_2
             
             return center,rot_point
             
-def pose5(cx,cy,angle) : #block4_2
+def pose5(cx,cy,angle) : 
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<104000)) :
@@ -414,8 +407,7 @@ def pose5(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle-180)+pa
-            ##여기에 angle 값 넣으면됨
-            ########
+           
         
         
         
@@ -427,7 +419,7 @@ def pose5(cx,cy,angle) : #block4_2
             
             return center,rot_point
             
-def pose6(cx,cy,angle) : #block4_2
+def pose6(cx,cy,angle) : 
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<100400)) :
@@ -461,9 +453,8 @@ def pose6(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)+pa
-            ##여기에 angle 값 넣으면됨
-            ########
-        
+            
+       
         
         
             rx =cx+a*math.cos(ag)
@@ -474,7 +465,7 @@ def pose6(cx,cy,angle) : #block4_2
             
             return center,rot_point
         
-def pose7(cx,cy,angle) : #block4_2
+def pose7(cx,cy,angle) : 
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<100400)) :
@@ -508,8 +499,7 @@ def pose7(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)-pa
-            ##여기에 angle 값 넣으면됨
-            ########
+            
         
         
         
@@ -521,7 +511,7 @@ def pose7(cx,cy,angle) : #block4_2
             
             return center,rot_point
             
-def pose8(cx,cy,angle) : #block4_2
+def pose8(cx,cy,angle) : 
      for cnt in contours:
         area = cv2.contourArea(cnt)
         if((area >2000)&(area<100400)) :
@@ -555,8 +545,7 @@ def pose8(cx,cy,angle) : #block4_2
             standardpoint=(x,y)
             
             ag = math.radians(-angle)+pa
-            ##여기에 angle 값 넣으면됨
-            ########
+           
         
         
         
@@ -604,7 +593,7 @@ for i in range(7):
     blocks_hierarchies[i] = hierarchy
     
     
-img = cv2.imread('val_scatter_0005.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('input_image.jpg', cv2.IMREAD_GRAYSCALE) ##input image 설정
 img_color = cv2.imread('val_scatter_0005.jpg', cv2.IMREAD_COLOR)
 print(img_color.shape)
 
