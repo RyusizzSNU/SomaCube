@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import pickle
 import pygame
 from pyquaternion import Quaternion
 
@@ -123,4 +124,27 @@ def quat_trans_to_rigid(quat, trans):
 
 def axis_angle_trans_to_rigid(axis, deg, trans):
     rot = Quaternion(axis=axis, degrees=deg).rotation_matrix
-    return rot_trans_to_rigid(rot, trans) 
+    return rot_trans_to_rigid(rot, trans)
+
+def load_static_C2B():
+    with open('results/extrinsic/static/mtx.pkl', 'rb') as f:
+        C2B = pickle.load(f)[0]
+        print 'C2B :\n', C2B
+    return C2B
+
+def load_static_C2I():
+    with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
+        C2I = pickle.load(f)
+        print 'C2I :\n', C2I
+    return C2I
+
+def static_image_to_base(p_I, C2I, C2B):
+    p_I = [[p_I[0]], [p_I[1]], [1]]
+    p_C = np.matmul(np.linalg.inv(C2I), p_I)
+    p_B = np.matmul(C2B, np.concatenate((p_C, [[1]]), axis=0))
+
+    o_C = [[0], [0], [0], [1]]
+    o_B = np.matmul(C2B, o_C)
+
+    p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
+    return p

@@ -42,12 +42,8 @@ imgpoints = np.squeeze(imgpoints[0])
 img = cv2.imread('preview.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-with open('results/extrinsic/static/mtx.pkl', 'rb') as f:
-    C2B = pickle.load(f)[0]
-    print 'C2B :\n', C2B
-with open('results/intrinsic/static/mtx.pkl', 'rb') as f:
-    C2I = pickle.load(f)
-    print 'C2I :\n', C2I
+C2B = utils.load_static_C2B()
+C2I = utils.load_static_C2I()
 
 i = 0
 nexttime = datetime.datetime.now() + datetime.timedelta(seconds = 5)
@@ -56,14 +52,7 @@ while True:
     wait()
 
     p_I = imgpoints[i]
-    p_I = [[p_I[0]], [p_I[1]], [1]]
-    p_C = np.matmul(np.linalg.inv(C2I), p_I)
-    p_B = np.matmul(C2B, np.concatenate((p_C, [[1]]), axis=0))
-
-    o_C = [[0], [0], [0], [1]]
-    o_B = np.matmul(C2B, o_C)
-
-    p = o_B - (o_B[2] / (o_B[2] - p_B[2])) * (o_B - p_B)
+    p = utils.static_image_to_base(p_I, C2I, C2B)
 
     pose = np.array([[0., 1., 0., p[0]], [1., 0., 0., p[1]], [0., 0., -1., 0.19], [0., 0., 0., 1.]])
     robot.movex('movel', pose, acc= 0.1, vel=0.2)
