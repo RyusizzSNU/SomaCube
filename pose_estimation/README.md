@@ -6,8 +6,7 @@ pose_estimation
 - segmentation/deepLab/deeplab manual.md에 따라 환경 구축해야 함.
 
 - deeplab.run()에 학습시키고 싶은 image를 넣어주고 코드 전체를 실행하면 됨. ( ex)out = deeplab.run("blocks.jpg") )
-- img = cv2.imread('', cv2.IMREAD_GRAYSCALE) 
-  img_color = cv2.imread('', cv2.IMREAD_COLOR) 에도 같은 이미지를 넣어주어 시각적으로 결과를 확인 함.
+- img = cv2.imread('', cv2.IMREAD_GRAYSCALE), img_color = cv2.imread('', cv2.IMREAD_COLOR) 에도 같은 이미지를 넣어주어 시각적으로 결과를 확인 함.
 
 - input image를 학습시켜 블록의 lable을 구분함.
 OpenCV의 contourArea()로 영역의 크기를 지정해서 선택된 영역에만 boundingRect()를 쳐서 block의 angle을 구함.
