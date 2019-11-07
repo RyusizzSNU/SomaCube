@@ -5,6 +5,8 @@ pose_estimation
 
 - segmentation/deepLab/deeplab manual.md에 따라 환경 구축해야 함.
 
+- out = deeplab.run()에 학습시키고 싶은 image를 넣어주고 코드 전체를 실행하면 됨. ( ex)out = deeplab.run("blocks.jpg") )
+
 - input image를 학습시켜 블록의 lable을 구분함.
 OpenCV의 contourArea()로 영역의 크기를 지정해서 선택된 영역에만 boundingRect()를 쳐서 block의 angle을 구함.
 (이때 angle은 절대값이 아닌 90이하의 값)
@@ -19,7 +21,6 @@ boundingRect()를 통해 구한 angle을 90 간격으로 4가지 후보군 설�
 pose가 같더라도 block 당 잡아야할 위치가 다르기 때문에 lable에 따라 다르게 계산되도록 함.
 
 - pp3의 출력값은 template 매칭된 결과의 대각선 좌표들이며, grippoint의 결과는 잡아야 할 좌표임.
-
 
 
 
