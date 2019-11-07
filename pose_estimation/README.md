@@ -1,8 +1,24 @@
 pose_estimation
 ================
 
-pp3와 grip_point는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야할 좌표를 계산합니다.
+pp3와 grip_point는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야할 좌표를 계산함.
 
-_pp3
+segmentation/deepLab/deeplab manual.md에 따라 환경 구축해야 함.
+input image를 학습시켜 블록의 lable을 구분함.
+OpenCV의 contourArea()로 영역의 크기를 지정해서 선택된 영역에만 boundingRect()를 쳐서 block의 angle을 구함.
+(이때 angle은 절대값이 아닌 90이하의 값)
+
+정확한 회전각을 구하기 위해서 OpenCV의 matchTemplate()을 이용('TM_CCOEFF_NORMED' 사용).
+template 리스트는 mk_ps_tp()에서 생성됨.
+
+lable_to_pose에서 lable 당 가능한 pose 후보군을 설정.
+boundingRect()를 통해 구한 angle을 90 간격으로 4가지 후보군 설정.
+
+위에 대한 결과로 얻은 결과로 회전된 절대각을 구하여
+pose1(),pose2(),pose3(),pose4(),pose5(),pose6(),pose7(),pose8()에서 잡아야 할 좌표를 계산해줌.
+
+
+
+
 
 
