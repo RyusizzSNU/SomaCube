@@ -1,7 +1,7 @@
 pose_estimation
 ================
 
-- pp3와 grippoint는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야할 좌표를 계산함.
+- pp3와 grippoint는 DeeplabModule()을 통해 7가지 block의 종류와 위치를 구하여 로봇이 block을 잡아야 할 좌표를 계산함.
 
 - segmentation/deepLab/deeplab manual.md에 따라 환경 구축해야 함.
 
@@ -18,6 +18,7 @@ boundingRect()를 통해 구한 angle을 90 간격으로 4가지 후보군 설�
 - 위에 대한 결과로 얻은 결과로 회전된 절대각을 구하여 pose1(),pose2(),pose3(),pose4(),pose5(),pose6(),pose7(),pose8()에서 잡아야 할 좌표를 계산해줌.
 pose가 같더라도 block 당 잡아야할 위치가 다르기 때문에 lable에 따라 다르게 계산되도록 함.
 
+- pp3의 출력값은 template 매칭된 결과의 대각선 좌표들이며, grippoint의 결과는 잡아야 할 좌표임.
 
 
 
