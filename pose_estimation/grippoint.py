@@ -190,7 +190,7 @@ def pose1(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
         
-        if((area >2000)&(area<100400)) :
+        if((area >2000)&(area<104000)) :
 
             pr=1
             x, y, w, h = cv2.boundingRect(cnt)
@@ -233,11 +233,12 @@ def pose1(cx,cy,angle) : #block4_2
             rot_point = (rx,ry)
             
             return center,rot_point
+        
 def pose2(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
         
-        if((area >2000)&(area<100400)) :
+        if((area >2000)&(area<104000)) :
 
             pr=3
             x, y, w, h = cv2.boundingRect(cnt)
@@ -285,7 +286,7 @@ def pose2(cx,cy,angle) : #block4_2
 def pose3(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<100400)) :
+        if((area >2000)&(area<104000)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -329,11 +330,11 @@ def pose3(cx,cy,angle) : #block4_2
             rot_point = (rx,ry)
             
             return center,rot_point
-
+        
 def pose4(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<100400)) :
+        if((area >2000)&(area<104000)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -381,7 +382,7 @@ def pose4(cx,cy,angle) : #block4_2
 def pose5(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
-        if((area >2000)&(area<100400)) :
+        if((area >2000)&(area<104000)) :
 
             pr=1.5
             x, y, w, h = cv2.boundingRect(cnt)
@@ -412,7 +413,7 @@ def pose5(cx,cy,angle) : #block4_2
     
             standardpoint=(x,y)
             
-            ag = math.radians(-angle)+pa
+            ag = math.radians(-angle-180)+pa
             ##여기에 angle 값 넣으면됨
             ########
         
@@ -472,7 +473,7 @@ def pose6(cx,cy,angle) : #block4_2
             rot_point = (rx,ry)
             
             return center,rot_point
-            
+        
 def pose7(cx,cy,angle) : #block4_2
      for cnt in contours:
         area = cv2.contourArea(cnt)
@@ -506,7 +507,7 @@ def pose7(cx,cy,angle) : #block4_2
     
             standardpoint=(x,y)
             
-            ag = math.radians(-angle)+pa
+            ag = math.radians(-angle)-pa
             ##여기에 angle 값 넣으면됨
             ########
         
@@ -767,6 +768,7 @@ for i in range(7) :
     p=a[17:18]
     pl[i]=int(p[0])
     agstr = a[19:-4]
+    print(agstr)
     l = len(agstr)
     c=0
     if l == 5:
@@ -775,17 +777,18 @@ for i in range(7) :
     elif l == 4 : 
         b[i] = int(agstr[0])*10+int(agstr[1])*1+int(agstr[3])*0.1
         c+=1
+    elif l == 3:
+        b[i] = int(agstr[0])+int(agstr[2])*0.1
     else :
         b[i] = int(agstr[0])*1+int(agstr[2])*0.1
         c+=1
  
           
     temp_img = cv2.imread(temp, cv2.IMREAD_GRAYSCALE)
-    temp_img = np.array(Image.fromarray(temp_img).resize((194, 194)))
+    temp_img = np.array(Image.fromarray(temp_img).resize((175, 175)))
 #     print(temp_img.shape)
     layer[blocks_p1[i][0][1]:blocks_p1[i][1][1], blocks_p1[i][0][0]:blocks_p1[i][1][0], :] = np.tile(np.expand_dims(temp_img, axis=2), [1,1,3])
 plt.figure(figsize=(15,12)), plt.imshow(layer), plt.show()
-
 
 
 
@@ -810,6 +813,7 @@ while i <7:
         
         i+=1
     elif pl[i] == 3:
+        
         center,rot_point= pose3(cx,cy,b[i])
         
         i+=1
@@ -823,11 +827,19 @@ while i <7:
        
         i+=1
     elif pl[i] == 6:
-        center,rot_point= pose6(cx,cy,b[i])
+        if i == 2 :
+            center,rot_point= pose6(cx,cy,b[i]-180)
+            
+        elif i == 4:
+            center,rot_point= pose6(cx,cy,b[i]-90)
+        
+        else :     
+            center,rot_point= pose6(cx,cy,b[i])
+           
         
         i+=1
     elif pl[i] == 7:
-        center,rot_point= pose7(cx,cy,b[i])
+        center,rot_point= pose7(cx,cy,b[i]-180)
         
         i+=1
     else:
@@ -835,7 +847,6 @@ while i <7:
         i+=1
     cv2.circle(img_overlayed, rot_point, 1,(0,125, 255), 3)
     grip.append(rot_point)
-
 
 print(grip)
 plt.figure(figsize=(15,12)), plt.imshow(img_overlayed), plt.show()
