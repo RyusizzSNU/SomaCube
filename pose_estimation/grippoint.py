@@ -569,11 +569,10 @@ def coco_thresholding(img, lbl):
     color = lable_to_color[lbl]
     mask = np.all(img == color, axis=-1).astype(np.uint8)*255
     return mask
-img = Image.open("val_scatter_0008.jpg").convert('RGB')
-plt.imshow(img)
+
 
 deeplab = DeeplabModule()
-out = deeplab.run("val_scatter_0008.jpg")
+out = deeplab.run("")
 # plt.imshow(np.transpose(out, (1,2,0)))
 img_mask = restoreOrigin(out)
 plt.imshow(img_mask)
@@ -593,8 +592,8 @@ for i in range(7):
     blocks_hierarchies[i] = hierarchy
     
     
-img = cv2.imread('input_image.jpg', cv2.IMREAD_GRAYSCALE) ##input image 설정
-img_color = cv2.imread('val_scatter_0005.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('', cv2.IMREAD_GRAYSCALE) 
+img_color = cv2.imread('', cv2.IMREAD_COLOR)
 print(img_color.shape)
 
 thr3 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 351, 40)
