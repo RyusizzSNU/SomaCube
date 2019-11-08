@@ -1,17 +1,17 @@
 intrinsic_calibration.py : 카메라를 intrinsic calibration 하기 위해 사용
- * cam_type, m, n, size, result_dir 를 argument로 입력
+ * cam, w, h, size 를 argument로 입력. 
  * 격자(target)을 회전시키고 이동시키면서 사진을 찍음(자동 촬영)
- * results/intrinsic/<result_dir>/mtx.pkl 에 calibration 결과
+ * results/intrinsic/<cam>/mtx.pkl 에 calibration 결과
    (camera_to_image matrix)가 저장됨.
 
 make_pos_image_pairs.py : extrinsic calibration을 위한 데이터 쌍을 얻기 위해 사용
- * cam_type, data_dir 를 argument로 입력
+ * cam, data_dir 를 argument로 입력
  * 화살표와 W/S 로 wrist의 위치를 조정, Q/E/H/K/Y/I 로 wrist의 rotation을 조정하고,
    스페이스바로 사진을 찍음.
- * 사진을 찍으면 사진이 <data_dir>/images에 저장되고, 그 시점에서 로봇의 손목 좌표가 data_dir/poses 에 저장됨.
+ * 사진을 찍으면 사진이 <data_dir>/images에 저장되고, 그 시점에서 로봇의 손목 좌표가 <data_dir>/poses 에 저장됨.
 
 extrinsic_calibration.py : 카메라를 extrinsic calibration하기 위해 사용
- * cam, h, w, size, data_dir 를 argument로 입력
+ * cam, w, h, size, data_dir 를 argument로 입력
  * cam이 static인 경우 : 손목에 붙어있는 target을 static camera로 촬영하는 경우를 상정.
                          camera_to_base matrix와 target_to_wrist matrix를 추정.
 
@@ -35,3 +35,4 @@ static_test.py : static camera에 대해 calibration한 것을 테스트하기 위해 사용
  * wrist를 target의 각 좌표로 이동시킴. auto == 1 인 경우 자동으로 이동하고, auto == 0 인 경우
    스페이스바를 누르면 이동함.
  
+manual_reaching.py : 정해진 위치에 놓여진 블록들을 정해진 모양대로 조립하게끔 로봇을 움직이는 코드
