@@ -1,3 +1,5 @@
+------------      Codes for run      ------------
+
 intrinsic_calibration.py : 카메라를 intrinsic calibration 하기 위해 사용
  * cam, w, h, size 를 argument로 입력. 
  * 격자(target)을 회전시키고 이동시키면서 사진을 찍음(자동 촬영)
@@ -36,3 +38,15 @@ static_test.py : static camera에 대해 calibration한 것을 테스트하기 위해 사용
    스페이스바를 누르면 이동함.
  
 manual_reaching.py : 정해진 위치에 놓여진 블록들을 정해진 모양대로 조립하게끔 로봇을 움직이는 코드
+
+------------      Modules      ------------
+cam_tool.py : 카메라 가동 및 조작을 위한 module. 현재는 sony와 realsense 카메라 모델만 지원함.
+
+utils.py : 각종 utility function들이 정의되어 있는 module.
+
+------------      Simple test codes ------------
+gripper_test.py : Robot gripper를 테스트하기 위한 코드
+
+preview.py : 카메라 연결 및 카메라에 찍히는 화면을 테스트하기 위한 코드
+
+take_photo.py : 카메라로 사진을 찍어서 저장하기 위한 코드
