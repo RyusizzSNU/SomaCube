@@ -762,14 +762,17 @@ for i in range(7) :
     if l == 5:
         b[i] = int(agstr[0])*100+int(agstr[1])*10+int(agstr[2])+int(agstr[4])*0.1
         c+=1
-    elif l == 4 : 
+    else : 
         b[i] = int(agstr[0])*10+int(agstr[1])*1+int(agstr[3])*0.1
         c+=1
+<<<<<<< HEAD:pose_estimation/grippoint.py
     elif l == 3:
         b[i] = int(agstr[0])+int(agstr[2])*0.1
     else :
         b[i] = int(agstr[0])*1+int(agstr[2])*0.1
         c+=1
+=======
+>>>>>>> parent of e96f95b... Update grippoint:pose_estimation/grippoint
  
           
     temp_img = cv2.imread(temp, cv2.IMREAD_GRAYSCALE)
