@@ -211,7 +211,7 @@ def pose1(img_color, contours, cx,cy,angle) : #block4_2
             a = r
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
             ag = math.radians(-angle)
@@ -249,7 +249,7 @@ def pose2(img_color, contours, cx,cy,angle) : #block4_2
             a = r
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
             ag = math.radians(-angle)
@@ -287,10 +287,12 @@ def pose3(img_color, contours, cx,cy,angle) : #block4_2
             a = ((r/2)**2+r**2)**0.5
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
+            print angle, pa
             ag = math.radians(-angle)+pa
+            print math.radians(-angle), ag
             ##여기에 angle 값 넣으면됨
             ########
         
@@ -325,7 +327,7 @@ def pose4(img_color, contours, cx,cy,angle) : #block4_2
             a = ((r/2)**2+r**2)**0.5
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
             ag = math.radians(-angle)-pa
@@ -363,7 +365,7 @@ def pose5(img_color, contours, cx,cy,angle) : #block4_2
             a = ((r/2)**2+r**2)**0.5
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
             ag = math.radians(-angle)+pa
@@ -439,10 +441,10 @@ def pose7(img_color, contours, cx,cy,angle) : #block4_2
             a = ((r/2)**2+r**2)**0.5
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
-            ag = math.radians(-angle)+pa
+            ag = math.radians(-angle)-pa
             ##여기에 angle 값 넣으면됨
             ########
         
@@ -478,7 +480,7 @@ def pose8(img_color, contours, cx,cy,angle) : #block4_2
             a = ((r/2)**2+r**2)**0.5
             x =cx-(r)
             y =cy+(r/2)
-            pa=math.atan(1/2)
+            pa=math.atan(1./2.)
             standardpoint=(x,y)
             
             ag = math.radians(-angle)+pa
@@ -533,7 +535,7 @@ def find_center(contours):
             b = box[3][1] - box[0][1]
             #print(box)
 
-            z = b / a
+            z = float(b) / float(a)
             angle = math.atan(z)
             s = np.rad2deg(angle)
 
@@ -626,7 +628,7 @@ def find_grip_points(img_fname):
             max_index = 0
             for j, temp in enumerate(template_lists):
                 temp_img = cv2.imread(temp, cv2.IMREAD_GRAYSCALE) #TODO: 템플릿 크기조절 필요
-                temp_img = np.array(Image.fromarray(temp_img).resize((194,194)))
+                temp_img = np.array(Image.fromarray(temp_img).resize((175,175)))
                 
                 w,h = temp_img.shape[::-1]
                 print(i, j, w, h)
@@ -654,7 +656,7 @@ def find_grip_points(img_fname):
             cv2.rectangle(img_boxed, blocks_p1[i][0], blocks_p1[i][1], lable_to_color[i], 5)
             print(blocks_pose[i])
             temp_img = cv2.imread(blocks_pose[i], cv2.IMREAD_GRAYSCALE)
-            temp_img = np.array(Image.fromarray(temp_img).resize((194,194)))
+            temp_img = np.array(Image.fromarray(temp_img).resize((175,175)))
             
         print(blocks_p1)
     print(blocks_p1)
@@ -680,13 +682,15 @@ def find_grip_points(img_fname):
         elif l == 4 :
             b[i] = int(agstr[0])*10+int(agstr[1])*1+int(agstr[3])*0.1
             c+=1
+        elif i == 3 :
+            b[i] = int(agstr[0]) + int(agstr[2]) * 0.1
         else :
             b[i] = int(agstr[0])*1 + int(agstr[2])*0.1
             c+=1
      
               
         temp_img = cv2.imread(temp, cv2.IMREAD_GRAYSCALE)
-        temp_img = np.array(Image.fromarray(temp_img).resize((194, 194)))
+        temp_img = np.array(Image.fromarray(temp_img).resize((175, 175)))
 #     print(temp_img.shape)
         layer[blocks_p1[i][0][1]:blocks_p1[i][1][1], blocks_p1[i][0][0]:blocks_p1[i][1][0], :] = np.tile(np.expand_dims(temp_img, axis=2), [1,1,3])
 
@@ -711,7 +715,7 @@ def find_grip_points(img_fname):
             
             i+=1
         elif pl[i] == 3:
-            center,rot_point= pose3(img_color, contours, cx,cy,b[i])
+            center,rot_point= pose3(img_color, contours, cx,cy,b[i]-180)
             
             i+=1
         elif pl[i] == 4:
@@ -723,11 +727,16 @@ def find_grip_points(img_fname):
            
             i+=1
         elif pl[i] == 6:
-            center,rot_point= pose6(img_color, contours, cx,cy,b[i])
-            
+            if i == 2:
+                center,rot_point= pose6(img_color, contours, cx,cy,b[i] - 180)
+            elif i == 4:
+                center,rot_point= pose6(img_color, contours, cx,cy,b[i] - 90)
+            else:
+                center, rot_point = pose6(img_color, contours, cx, cy, b[i])
+
             i+=1
         elif pl[i] == 7:
-            center,rot_point= pose7(img_color, contours, cx,cy,b[i])
+            center,rot_point= pose7(img_color, contours, cx,cy,b[i] - 180)
             
             i+=1
         else:
