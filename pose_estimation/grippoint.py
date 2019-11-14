@@ -658,7 +658,7 @@ lable_to_pose = {0: [1, 6],
                  2: [6],
                  3: [2, 3, 4],
                  4: [6],
-                 5: [2, 5, 8],
+                 5: [1, 2, 5, 8],
                  6: [2, 7]}
 def mk_ps_tp(angle, lable) :
 #     blocks_pose_lists = [None]*7
