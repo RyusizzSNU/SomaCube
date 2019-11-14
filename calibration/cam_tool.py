@@ -29,7 +29,7 @@ class cam_tool:
         
         os.remove('temp.jpg')
 
-    def capture(self, path=None):
+    def capture(self, path=None, depth=False):
         tempname = 'temp.jpg'
         if path == tempname:
             tempname = 'temp2.jpg'
@@ -44,10 +44,24 @@ class cam_tool:
             color_frame = frames.get_color_frame()
             if not color_frame:
                 return
-            im = np.asanyarray(color_frame.get_data())
+            if depth:
+                depth_frame = frames.get_depth_frame()
+                if not depth_frame:
+                    return
+
+            color_image = np.asanyarray(color_frame.get_data())
+            if depth:
+                depth_image = np.asanyarray(depth_frame.get_data())
+                #depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+                depth_image = np.tile(np.expand_dims(cv2.convertScaleAbs(depth_image, alpha=0.03), 2), [1, 1, 3])
+                image = np.hstack((color_image, depth_image))
+
+            else:
+                image = color_image
+
             if path == None:
-                return im
-            cv2.imwrite(tempname, im)
+                return image
+            cv2.imwrite(tempname, image)
 
         os.rename(tempname, path)
 
