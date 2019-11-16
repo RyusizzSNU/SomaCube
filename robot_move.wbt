@@ -1,0 +1,122 @@
+#VRML_SIM R2019a utf8
+WorldInfo {
+  info [
+    "Puma 560 Robot"
+    "Thanks to Andy Park (ARTLAB, Purdue University)"
+  ]
+  title "Unimate Puma 560"
+  gravity 0 0 -9.81
+  ERP 0.8
+  basicTimeStep 2.5
+  #basicTimeStep 1
+  FPS 30
+}
+Viewpoint {
+  orientation -0.22453806232056164 -0.4653423940935037 -0.8561770347472851 3.808903948807059
+  position 1.896177651370339 0.7618188318667976 2.0098125618820903
+}
+CeilingLight {
+  translation 1 -1 0.0
+  rotation 1 0 0 -1.57
+}
+DirectionalLight {
+  ambientIntensity 0.8
+  direction 1 -1 -1
+  intensity 0.3
+  castShadows TRUE
+}
+Background {
+  skyColor [
+    0.678431 0.847059 0.901961
+  ]
+}
+RectangleArena {
+  rotation 1 0 0 1.57
+  floorSize 20 20
+  floorTileSize 2 2
+}
+# pink
+Block1 {
+  translation 0.375 0.40 0.0125
+  controller "BlockGPS"
+  size 0.025 0.025 0.025
+  pos2 0 -0.025 0
+  pos3 -0.025 0 0
+}
+# red
+Block2 {
+  translation 0.375 0.30 0.0125
+  controller "BlockGPS"
+  size 0.025 0.025 0.025
+  pos2 0 0.025 0
+  pos3 0 -0.025 0
+  pos4 0.025 0.025 0
+}
+# yellow
+Block2 {
+  translation 0.45 0.40 0.0125
+  color 0.6 0 0
+  controller "BlockGPS"
+  size 0.025 0.025 0.025
+  pos2 0 0.025 0
+  pos3 0 -0.025 0
+  pos4 0.025 0 0
+  name "block3"
+}
+# blue
+Block2 {
+  translation 0.46 0.30 0.0125
+  color 0 0 0.6
+  controller "BlockGPS"
+  channel 4
+  size 0.025 0.025 0.025
+  pos2 0 0.025 0
+  pos3 -0.025 -0.025 0
+  pos4 -0.025 0 0
+  name "block4"
+  mass 1.5
+}
+# green
+Block2 {
+  translation 0.55 0.40 0.0125
+  color 0 0.6 0.6
+  controller "BlockGPS"
+  channel 5
+  size 0.025 0.025 0.025
+  pos2 0 -0.025 0
+  pos3 -0.025 0 0
+  pos4 -0.025 0 0.025
+  name "block5"
+}
+# grey
+Block2 {
+  translation 0.525 0.30 0.0125
+  color 0.6 0.6 0.6
+  controller "BlockGPS"
+  channel 6
+  size 0.025 0.025 0.025
+  pos2 0 0.025 0
+  pos3 -0.025 0 0
+  pos4 -0.025 0 0.025
+  name "block6"
+}
+# sky blue
+Block2 {
+  translation 0.30 0.40 0.0125
+  color 0.2 0.2 0.2
+  controller "BlockGPS"
+  channel 7
+  size 0.025 0.025 0.025
+  pos2 -0.025 0 0
+  pos3 0 0.025 0
+  pos4 0 0 0.025
+  name "block7"
+}
+
+
+#UR5E_bare {
+UR5E {
+  rotation 1 0 0 0
+  controller "n1bot"
+  controllerArgs "0 32"
+}
