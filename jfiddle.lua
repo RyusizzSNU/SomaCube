@@ -124,85 +124,155 @@ if arg and arg[-1]=='-i' and jit then
     local block_xpos = wcm.get_cubes_xpos()
     local block_ypos = wcm.get_cubes_ypos()
 
-    -- block catch order
+		-- BLOCK ID (SIM) to BLOCK ID (REAL)
+		-- for accessing 'final_block_rel_loc'
+		-- e.g. to access BLOCK ID '3' (SIM)
+		-- 			final_block_rel_loc[block_id_map[3]]
+		local block_id_map = {1, 5, 7, 4, 2, 3, 6}
+
+		-- [TODO] INITIAL 'X' LOCATION
+		local x_hold_offset = 0.04
+
+		local refine_cubes_xpos = {}
+		for i=1,7 do
+			table.insert(refine_cubes_xpos, block_xpos[i] - x_hold_offset)
+		end
+
+		print("refine_cubes_xpos")
+		for i=1,7 do
+			print(refine_cubes_xpos[i])
+		end
+
+		-- [TODO] RELATIVE/FINAL LOCATION
+		-- relative loc based on BLOCK ID (REAL) '0'
+		local final_block_rel_loc = { {0,0,0},
+														{-3 * 0.025, 1 * 0.025, 0},
+														{-3 * 0.025, -3 * 0.025, 0},
+														{-1 * 0.025, -2 * 0.025, 0},
+														{-2 * 0.025, 0, 0},
+														{0, -3 * 0.025, 0},
+														{-4 * 0.025, -1 * 0.025, 0}
+													}
+		local final_offset = {0.3, -0.3, 0.0125}
+
+		-- final block location
+		local final_block_loc = {}
+		for i=1,7 do
+			local tmp = {final_block_rel_loc[block_id_map[i]][1] + final_offset[1],
+									 final_block_rel_loc[block_id_map[i]][2] + final_offset[2],
+									 final_block_rel_loc[block_id_map[i]][3] + final_offset[3]}
+			table.insert(final_block_loc, tmp)
+		end
+
+    -- block catch order in BLOCK ID (SIM)
     local order = {7, 4, 6, 1, 3, 5, 2}
 
+
+
     -- heuristic values
-    local xoffset = 0.05 -- for set gripper appropriately
-    local block_xoffset = {-0.065, -0.017, -0.02, -0.03, -0.075, -0.075, -0.05}
-    local z_max_offset = 0.2
-    local z_min_offset = 0.013
-    local gripInit = {0.04, 0.04}
-    local gripHold = {0.01, 0.01}
+    --local xoffset = 0.05 -- for set gripper appropriately
+    --local block_xoffset = {-0.065, -0.017, -0.02, -0.03, -0.075, -0.075, -0.05}
+    local z_max_offset = 0.3
+		local z_1_offset = 0.25
+		local z_2_offset = 0.2
+		local z_3_offset = 0.1
+
+    local z_min_offset = 0.05
+		local z_put_offset = 0.3--0.05
+    local gripInit = {0.06, 0.06}
+    local gripHold = {0.02, 0.02}
     local gripRelease = gripInit
 
+
     -- assemble loc info
-    local loc_offset = {0.6, -0.2, 0.0125}
-    local block_loc = {{-0.025, 0.075, 0.0},
-                       {-0.025, 0.1, 0.1},
-                       {-0.075, 0.05, 0.0},
-                       {-0.025, 0.0375, 0.0},
-                       {-0.1, 0.1, -0.006},
-                       {-0.1, 0.0, 0.0},
-                       {-0.025, 0.0, 0.0}}
+    --local loc_offset = {0.4, -0.4, 0.0125}
+    --local block_loc = {{-0.025, 0.075, 0.0},
+    --                   {-0.025, 0.1, 0.1},
+    --                   {-0.075, 0.05, 0.0},
+    --                   {-0.025, 0.0375, 0.0},
+    --                   {-0.1, 0.1, -0.006},
+    --                   {-0.1, 0.0, 0.0},
+    --                   {-0.025, 0.0, 0.0}}
+
+		--local block_hold_pos_offset = {{}}
 
 
     function wait()
-        os.execute("sleep 3")
+        os.execute("sleep 4")
     end
 
-    function loc_cal(idx, x) -- x: 0=x, 1=y
-        return loc_offset[x] + block_loc[idx][x]
-    end
+    --function loc_cal(idx, x) -- x: 0=x, 1=y
+    --    return loc_offset[x] + block_loc[idx][x]
+    --end
 
     print("block xpos", block_xpos)
     print("block ypos", block_ypos)
 
     function pickBlock(idx)
-        hcm.set_arm_grabxyz({block_xpos[idx] + block_xoffset[idx], block_ypos[idx], z_max_offset})
+        hcm.set_arm_grabxyz({refine_cubes_xpos[idx], block_ypos[idx], z_max_offset})
         arm_ch:send'moveto'
         wait()
 
-        hcm.set_arm_grabxyz({block_xpos[idx] + block_xoffset[idx], block_ypos[idx], z_min_offset})
+        hcm.set_arm_grabxyz({refine_cubes_xpos[idx], block_ypos[idx], z_min_offset})
         arm_ch:send'moveto'
         wait()
 
         hcm.set_arm_gripperTarget(gripHold)
         wait()
 
-        hcm.set_arm_grabxyz({block_xpos[idx] + block_xoffset[idx], block_ypos[idx], z_max_offset})
+        hcm.set_arm_grabxyz({refine_cubes_xpos[idx], block_ypos[idx], z_max_offset})
         arm_ch:send'moveto'
         wait()
 
-        hcm.set_arm_grabxyz({loc_cal(idx, 1), loc_cal(idx, 2), z_max_offset})
+        hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_max_offset})
         arm_ch:send'moveto'
         wait()
 
-        hcm.set_arm_grabxyz({loc_cal(idx, 1), loc_cal(idx, 2), z_min_offset + block_loc[idx][2]})
+				--hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_1_offset + 0.01})
+        --arm_ch:send'moveto'
+        --wait()
+
+				--hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_2_offset + 0.01})
+        --arm_ch:send'moveto'
+        --wait()
+
+				--hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_3_offset + 0.01})
+        --arm_ch:send'moveto'
+        --wait()
+
+        hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_put_offset + 0.01})
+        arm_ch:send'moveto'
+        wait()
+				gt = hcm.get_arm_gripperTarget()
+
+				print(gt[1])
+				gt[1] = gt[1] + 0.06
+				gt[2] = gt[2] + 0.006
+				print(gt[2])
+
+        hcm.set_arm_gripperTarget(gt)
+        wait()
+
+        hcm.set_arm_grabxyz({final_block_loc[idx][1], final_block_loc[idx][2], z_max_offset})
         arm_ch:send'moveto'
         wait()
 
-        hcm.set_arm_gripperTarget(gripRelease)
-        wait()
-
-        hcm.set_arm_grabxyz({loc_cal(idx, 1), loc_cal(idx, 2), z_max_offset})
-        arm_ch:send'moveto'
+				hcm.set_arm_gripperTarget(gripInit)
         wait()
     end
 
     hcm.set_arm_gripperTarget(gripInit)
     wait()
 
-    for i=1,7 do
-        pickBlock(order[i])
-    end
+    --for i=1,7 do
+    --    pickBlock(order[i])
+    --end
+		--pickBlock(3)
 
 
 
 
-    
 	-- Interactive LuaJIT
 	package.path = package.path..';'..HOME..'/Tools/iluajit/?.lua'
 	dofile(HOME..'/Tools/iluajit/iluajit.lua')
 end
-
